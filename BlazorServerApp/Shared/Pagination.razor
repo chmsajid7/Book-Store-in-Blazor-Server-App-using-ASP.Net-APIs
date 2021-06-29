@@ -1,0 +1,106 @@
+﻿@using BlazorServerApp.Helpers
+<nav aria-label="Pagination Component">
+    <ul class="pagination justify-content-center">
+        @foreach (var link in links)
+        {
+            <li @onclick="(()=>SelectedPageInternal(link))"
+                style="cursor:pointer;"
+                class="page-item @(link.Enabled?null:"disabled") @(link.Active?"active":null)">
+                <span class="page-link" href="#">@link.Text</span>
+            </li>
+        }
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+    [Parameter]
+    public int TotalPagesQuantity { get; set; }
+    [Parameter]
+    public int Radius { get; set; } = 4;
+    [Parameter]
+    public EventCallback<int> SelectedPage { get; set; }
+    List<LinkModel> links;
+
+    protected override void OnParametersSet()
+    {
+        LoadPages();
+    }
+
+    private async Task SelectedPageInternal(LinkModel link)
+    {
+        if (link.Page == CurrentPage)
+        {
+            return;
+        }
+
+        if (!link.Enabled)
+        {
+            return;
+        }
+
+        CurrentPage = link.Page;
+        await SelectedPage.InvokeAsync(link.Page);
+    }
+
+    private void LoadPages()
+    {
+        links = new List<LinkModel>();
+        var isFirstEnabled = CurrentPage != 1;
+        var isPrevEnabled = CurrentPage != 1;
+        var isNextEnabled = CurrentPage != TotalPagesQuantity;
+        var isLastEnabled = CurrentPage != TotalPagesQuantity;
+        var prevPage = CurrentPage - 1;
+        var nextPage = CurrentPage + 1;
+
+        //add First Button
+        links.Add(new LinkModel(1, isFirstEnabled, "First"));
+
+        //add Previous Button
+        links.Add(new LinkModel(prevPage, isPrevEnabled, "Previous"));
+
+        if (TotalPagesQuantity > 0)
+        {
+            isFirstEnabled = isPrevEnabled = CurrentPage != 1;
+            isNextEnabled = isLastEnabled = CurrentPage != TotalPagesQuantity;
+
+            for (int i = 1; i <= TotalPagesQuantity; i++)
+            {
+                if (i > CurrentPage - Radius && i <= CurrentPage + Radius)
+                {
+                    links.Add(new LinkModel(i) { Active = CurrentPage == i, Text = i.ToString().FormatNumberStringWithDigits(3) });
+                }
+            }
+        }
+        else
+        {
+            isPrevEnabled = isNextEnabled = isFirstEnabled = isLastEnabled = false;
+        }
+
+        //add Next Button
+        links.Add(new LinkModel(nextPage, isNextEnabled, "Next"));
+
+        //add Last Button
+        links.Add(new LinkModel(TotalPagesQuantity, isLastEnabled, "Last"));
+    }
+
+    class LinkModel
+    {
+        public int Page { get; set; }
+        public string Text { get; set; }
+        public bool Enabled { get; set; }
+        public bool Active { get; set; }
+
+        public LinkModel(int page) : this(page, true) { }
+
+        public LinkModel(int page, bool enabled) : this(page, true, page.ToString()) { }
+
+        public LinkModel(int page, bool enabled, string text)
+        {
+            Page = page;
+            Enabled = enabled;
+            Text = text;
+        }
+    }
+}

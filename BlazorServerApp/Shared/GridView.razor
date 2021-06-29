@@ -1,0 +1,80 @@
+﻿@typeparam TItem
+
+<div class="col-12 row">
+    <table class="table table-bordered table-striped mb-0">
+        <thead class="bg-info">
+            <tr>
+                @GridColumns
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    @GridRow(item)
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<br />
+
+@*<div>
+    <button class="btn btn-secondary" @onclick="@(e => NavigateTo("first"))">@("<<")</button>
+    <button class="btn btn-secondary" @onclick="@(e => NavigateTo("prev"))">Prev</button>
+    @for (int i = 0; i < TotalPages; i++)
+    {
+        var pageNumber = i;
+        <button class="btn @(CurrentPage == pageNumber? "btn-dark":"btn-info")"
+                @onclick="@(e => UpdateList(pageNumber))">
+            @(i + 1)
+        </button>
+    }
+    <button class="btn btn-secondary" @onclick="@(e => NavigateTo("next"))">Next</button>
+    <button class="btn btn-secondary" @onclick="@(e => NavigateTo("last"))">@(">>")</button>
+</div>*@
+
+@code {
+
+    [Parameter]
+    public RenderFragment GridColumns { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem> GridRow { get; set; }
+
+    [Parameter]
+    public List<TItem> Items { get; set; }
+
+    public int PageSize { get; set; }
+    public int TotalPages { get; set; }
+    public int CurrentPage { get; set; }
+
+    [Parameter]
+    public bool ReloadList { get; set; }
+
+    protected override void OnInitialized()
+    {
+        PageSize = 10;
+
+        if (Items != null)
+        {
+             Items.Take(PageSize).ToList();
+            TotalPages = (int)Math.Ceiling(Items.Count() / (decimal)PageSize);
+        }
+
+        base.OnInitialized();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender && ReloadList)
+        {
+            ReloadList = false;
+
+            StateHasChanged();
+        }
+
+        base.OnAfterRender(firstRender);
+    }
+}

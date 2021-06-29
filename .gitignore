@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/BlazorServerApp
+/AbdoZRazorLibrary/AbdoZRazorLibrary/bin/Debug/netstandard2.0
+/AbdoZRazorLibrary/AbdoZRazorLibrary/obj
+/BlazorServerApp/bin/Debug/netcoreapp3.1
+/BlazorServerApp/obj
+/BookStoresWebAPI/BookStoresWebAPI/bin/Debug/netcoreapp3.1
+/BookStoresWebAPI/BookStoresWebAPI/obj
+/.vs/BookstoreBlazor/v16/.suo
+/.vs
